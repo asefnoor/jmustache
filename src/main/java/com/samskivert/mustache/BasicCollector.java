@@ -4,6 +4,8 @@
 
 package com.samskivert.mustache;
 
+import android.content.ContentValues;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +41,7 @@ public abstract class BasicCollector implements Mustache.Collector
         if (name == Template.DOT_NAME || name == Template.THIS_NAME) return THIS_FETCHER;
 
         if (ctx instanceof Map<?,?>) return MAP_FETCHER;
+        if (ctx instanceof ContentValues) return CV_FETCHER;
 
         // if the name looks like a number, potentially use one of our 'indexing' fetchers
         char c = name.charAt(0);
@@ -72,6 +75,13 @@ public abstract class BasicCollector implements Mustache.Collector
         public Object get (Object ctx, String name) throws Exception {
             Map<?,?> map = (Map<?,?>)ctx;
             return map.containsKey(name) ? map.get(name) : Template.NO_FETCHER_FOUND;
+        }
+    };
+
+    protected static final Mustache.VariableFetcher CV_FETCHER = new Mustache.VariableFetcher() {
+        public Object get (Object ctx, String name) throws Exception {
+            ContentValues cv = (ContentValues) ctx;
+            return cv.containsKey(name) ? cv.get(name) : Template.NO_FETCHER_FOUND;
         }
     };
 
